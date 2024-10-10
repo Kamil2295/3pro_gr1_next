@@ -1,70 +1,54 @@
 "use client"
-import Image from "next/image"
-import Link from "next/link"
-import { useState, useEffect } from "react"
+import Borders from '@/components/borders'
+import Image from 'next/image'
+import {useState, useEffect} from 'react'
+export default function KrajInfo({params}){
 
-export default function Info({params}){
-
-    const [kraj, setKraj] = useState([])
-    const [error, setError] = useState(false)
-    const [load, setLoad] = useState(true)
+    const [kraj, setKraj] = useState({})
+    const [pobieranie, setPobieranie] = useState(true)
+    const [blad, setBlad] = useState(false)
 
     useEffect(()=>{
-        async function getData() {
+        const getData = async ()=>{
 
-            try{
-                const response = await fetch(`https://restcountries.com/v3.1/alpha/${params.kod}`)
-                console.log(response)
-                const json = await response.json()
-                console.log(json)
-                setKraj(json)
-               
-              
-            } catch(error) {
-                setError(true)
-                console.log("ERROR")
+            try {
+               const response = await fetch(`https://restcountries.com/v3.1/alpha/${params.kod}`)
+               const json = await response.json()
+               console.log(response)
+               console.log(json) 
+               setKraj(json[0])
+
+               if(response.status == 400){
+                setBlad(true)
+               }
+
+            } catch (error) {
+                setBlad(true)
+                console.log(error)
             } finally {
-                setLoad(false)
+                setPobieranie(false)
             }
-            
         }
-
         getData()
-    }, [])
+    },[])
 
-    useEffect(()=>{
-        if(kraj[0]== undefined){
-            setError(true)
-        }
-        if(kraj[0]!= undefined){
-            setError(false)
-        }
-    },[kraj])
-
-  
-
-
-  
     return(
         <div>
-        {error && <h1>Nie udało się pobrać danych</h1>}
-        {load && <h1>Pobieranie danych</h1>}
-        {kraj.length>0 && 
-        <div className=" h-screen flex flex-col justify-center items-center">
-            <div className="border p-2 flex flex-col justify-center items-center bg-green-400">
-            <Image
-        src={kraj[0].flags.png}
-        width={200}
-        height={100}
-        alt={kraj[0].name.common}
-        className='w-[800px] h-[400px]'
-        quality={100}
-        />
-        <h1 className="text-2xl font-bold">{kraj[0].name.common}</h1>
-        <p>{kraj[0].cca2}</p>
+
+        {pobieranie && <h1>Pobieranie danych</h1>}
+        {blad && <h1>Nie udało się pobrać danych</h1>}
+        {kraj?.cca2 != null && 
+        <div className='w-full h-screen flex flex-col justify-center items-center'>
+        <div className="flex flex-col justify-center items-center p-2 border h-[400px] w-[600px]">
+        <Image src={kraj.flags.png} height={198} width={496} className='w-[496px] h-[198px]'></Image>
+        <h1 className="text-2xl">{kraj.name.common} {"("+kraj.cca2+")"}</h1>
+        <p className="text-sm text-left">{kraj.capital}</p>
+        <p className="text-sm text-left">{kraj.population}</p>
         </div>
-        <Link href="/strona1">PREW</Link>
-            </div>}
+        <Borders borders={kraj.borders}></Borders>
+        </div>
+        }
         </div>
     )
+
 }
