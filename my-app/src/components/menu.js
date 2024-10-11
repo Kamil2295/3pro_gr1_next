@@ -6,6 +6,7 @@ export default function Menu(){
         <div className="flex gap-2 items-center w-full">
             <Link href="/">main</Link>
             <Link href="/strona1">strona1</Link>
+            <Link href="/strona2">strona2</Link>
             <a href="/strona1">Zmieniony</a>
         </div>
 
