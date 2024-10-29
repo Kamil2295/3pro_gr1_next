@@ -9,14 +9,7 @@ export default function Home() {
   const lista = ["Kamil Koseski", "Jan Kwalski", "Jan Nowak"]
   return (
     <div className="flex flex-col items-center justify-center h-screen gap-2">
-   <Imielist imie="Kamil Koseski" ok/>
-   <Imielist imie="Jan Kwalski"/>
-   {
-    lista.map((osoba, index)=>(
-        <Imielist key={index} imie={osoba}/>
-    ))
-   }
-   <Lista lista={lista}/>
+   <h1>Pocketbase</h1>
 
    
    </div>
