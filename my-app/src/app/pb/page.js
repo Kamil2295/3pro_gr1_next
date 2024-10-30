@@ -25,10 +25,10 @@ export default function Page() {
     
 
     const form = (e, nazawa)=>{
-        setDane((prev)=>{
+        setDane((prevDane)=>{
             return(
             {
-                ...prev,
+                ...prevDane,
                 [nazawa]:e.target.value
             }
         )
@@ -38,9 +38,9 @@ export default function Page() {
 
     const  zapisz = async () =>{
         const record = await pb.collection('gry').create(dane);
-        setData((prev)=>{
+        setData((prevData)=>{
             return (
-                [record, ...prev ]
+                [record, ...prevData ]
             )
         })
     }
