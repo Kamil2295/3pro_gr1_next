@@ -15,12 +15,16 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from '@/components/ui/button';
+import { Pencil, Trash2 } from 'lucide-react';
+import { EditItem } from '@/components/pb/edititem';
+import { useToast } from "@/hooks/use-toast"
 
 export default function Page() {
-
+    const { toast } = useToast()
     const pb = new PocketBase('http://192.168.15.26:8080');
     const [data, setData] = useState([])
     const [dane, setDane] = useState({nazwa: null, cena: null, opis: null})
+    const [zdjecie, setZdjecie] = useState(null)
 
     
 
@@ -36,13 +40,31 @@ export default function Page() {
         console.log(dane)
     }
 
+    const handlezdjecie = (e) => {
+        console.log(e)
+        setZdjecie(e.target.files[0])
+    }
+
     const  zapisz = async () =>{
-        const record = await pb.collection('gry').create(dane);
+
+        const formdata = new FormData() 
+        
+        formdata.append("nazwa", dane.nazwa)
+        formdata.append("cena", dane.cena)
+        formdata.append("opis", dane.opis)
+        formdata.append("zdjecie", zdjecie)
+
+        const record = await pb.collection('gry').create(formdata);
         setData((prevData)=>{
             return (
                 [record, ...prevData ]
             )
         })
+
+        toast({
+            title: "nowa gra została dodana do bazy",
+            description: new Date().toLocaleString(),
+          })
     }
 
     useEffect(() => {
@@ -60,6 +82,47 @@ export default function Page() {
 
         getData()
     }, [])
+
+
+    const delItem = async (id) =>{
+        console.log(id)
+
+        try{
+            await pb.collection('gry').delete(id);
+
+
+            //atkualizacja stanu po usunięciu
+            setData((prev)=>(
+                    prev.filter(item => {
+                        return item.id != id
+                    })
+            ))
+
+        }catch(err){
+
+        }
+    }
+
+    const updateItem = (item) => {
+        console.log(item)
+
+        var tmpData = [...data]
+        var index = null
+
+        for(let i in data){
+            if(item.id == tmpData[i].id){
+                index = i
+            }
+        }
+
+        tmpData[index] = item
+
+        console.log(tmpData)
+
+        setData(tmpData)
+
+        console.log("index: " + index)
+    }
 
     return (
         <div className='w-full h-screen '>
@@ -81,9 +144,17 @@ export default function Page() {
                                     width={500}
                                     height={500}
                                 />
+                            <div className='w-full flex justify-center'>
+                                <h3>Cena: {gra.cena}</h3>
+                                </div>
                             </CardContent>
-                            <CardFooter>
-                               
+                            <CardFooter >
+                                <div className='w-full flex justify-end'>
+                                    <EditItem gra={gra} onupdate={updateItem}/>
+                                    <Button onClick={()=>{ delItem(gra.id) }} variant="ghost">
+                                        <Trash2 />
+                                    </Button>
+                                </div>
                             </CardFooter>
                         </Card>
                     )
@@ -105,7 +176,7 @@ export default function Page() {
             <Input onChange={(e)=>{form(e, "opis")}} type="text" id="opis" placeholder="Opis" />
 
             <Label htmlFor="zdjecie">Zdjęcie</Label>
-            <Input onChange={(e)=>{form}} type="file" id="zdjecie" placeholder="Zdjęcie" />
+            <Input onChange={(e)=>{handlezdjecie(e)}} type="file" id="zdjecie" placeholder="Zdjęcie" />
 
             <Button onClick={zapisz} className="w-full mt-5">Dodaj grę</Button>
             </Card>

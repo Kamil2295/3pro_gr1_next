@@ -1,4 +1,6 @@
 "use client"
+import  DeleteItem  from '@/components/pocketbase/deleteitem';
+import EditItem from '@/components/pocketbase/editItem';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -77,6 +79,29 @@ export default function Page(){
         setZdjecie(e.target.files[0])
     }
 
+    const deleted = (id)=>{
+        setSamochody((prev)=>(
+            prev.filter((el) => {
+                return el.id != id
+            }
+             
+            )
+        ))
+    }
+
+    const updated = (item)=>{
+            console.log(item)
+            var index = null
+            var tmpSamochody = [...samochody]
+            for(let i in samochody){
+                if(samochody[i].id == item.id)
+                    index = i
+            }
+
+            tmpSamochody[index] = item
+            setSamochody(tmpSamochody)
+            console.log("index: "+ index)
+    }
 
     return(
         <div>
@@ -89,7 +114,7 @@ export default function Page(){
                samochody.map((samochod)=>(
 
                 
-                    <Card className="w-[400px]">
+                    <Card key={samochod.id} className="w-[400px]">
                     <CardTitle>{samochod.marka}</CardTitle>
                     <CardDescription>{samochod.model}</CardDescription>
                     <CardContent className="m-0 p-0">
@@ -102,11 +127,19 @@ export default function Page(){
                         />
                     </CardContent>
                     <CardFooter>
-                        <div className='flex justify-end w-full mt-5'>
-                            <Timer/> 
-                            <p>czas parkowania: </p>
-                            {samochod.czas_parkowania}
-                        </div>
+                           <div className='w-full flex  justify-between'>
+                               <div className='mt-5 flex flex-row gap-2'>
+                                   <DeleteItem id={samochod.id} ondeleted={deleted}/>
+                                   <EditItem item={samochod} onupdated={updated}/>
+                               </div>
+
+                               <div className='flex justify-end  mt-5'>
+                                   <Timer />
+                                   <p>czas parkowania: </p>
+                                   {samochod.czas_parkowania}
+                               </div>
+                           </div>
+                        
                     </CardFooter>
                 </Card>
 
