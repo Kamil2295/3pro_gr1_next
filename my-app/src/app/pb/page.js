@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/button';
 import { Pencil, Trash2 } from 'lucide-react';
 import { EditItem } from '@/components/pb/edititem';
 import { useToast } from "@/hooks/use-toast"
+import { Avatar_pocketbase } from '@/components/pb/loginAvatar';
 
 export default function Page() {
     const { toast } = useToast()
@@ -25,8 +26,15 @@ export default function Page() {
     const [data, setData] = useState([])
     const [dane, setDane] = useState({nazwa: null, cena: null, opis: null})
     const [zdjecie, setZdjecie] = useState(null)
+    const [user, setUser] = useState(null)
 
-    
+    useEffect(()=>{
+        setUser(pb.authStore.model)
+},[])
+
+const login = (user_pb) => {
+    setUser(user_pb)
+}
 
     const form = (e, nazawa)=>{
         setDane((prevDane)=>{
@@ -124,11 +132,15 @@ export default function Page() {
         console.log("index: " + index)
     }
 
+    
+
     return (
         <div className='w-full h-screen '>
 
+            <Avatar_pocketbase onLogin={login}/>
             <div className='w-full h-[70vh] flex flex-row gap-2 justify-center flex-wrap'>
             {
+                user ?
                 data.length!=0 && data.map((gra) => {
 
                     return (
@@ -158,7 +170,9 @@ export default function Page() {
                             </CardFooter>
                         </Card>
                     )
-                })
+                }) 
+                :
+                <p>niezalogowany</p>
             }
             </div>
             <div className='w-full h-[30vh] flex justify-center mt-5'>
